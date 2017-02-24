@@ -13,6 +13,10 @@ safari: safari.jsons
 custom: custom.jsons
 	echo "Output is in $<; use jq to manipulate"
 
+.PHONY: 1password
+1password: 1password.jsons
+	echo "Output is in $<; use jq to manipulate"
+
 %.jsons: asn.txt ip_table.txt ipv6_table.txt userdata/%.resolved_ipv4.txt userdata/%.resolved_ipv6.txt venv
 	rm -f $@
 	./venv/bin/python lookup.py asn.txt ip_table.txt userdata/$(patsubst %.jsons,%,$@).resolved_ipv4.txt >> $@
@@ -26,6 +30,9 @@ userdata/chrome_domains.txt: userdata/Chrome_History.sqlite
 
 userdata/safari_domains.txt:
 	sqlite3 ~/Library/Safari/History.db 'SELECT url FROM history_items' | grep '^https' | sed -e 's,^https://,,' | cut -d/ -f 1 | sort -u > $@
+
+userdata/1password_domains.txt: extract_1password_domains.sh
+	bash $< | sort -u > "$@"
 
 venv: requirements.txt
 	python3 -m virtualenv venv
