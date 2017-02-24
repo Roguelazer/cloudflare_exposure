@@ -1,14 +1,36 @@
+all:
+	echo "Read the README"
+
+.PHONY: chrome
+chrome: chrome.jsons
+	echo "Output is in $<; use jq to manipulate"
+
 .PHONY: safari
-safari: asn.txt ip_table.txt ipv6_table.txt userdata/safari_resolved_ipv4.txt userdata/safari_resolved_ipv6.txt venv
-	./venv/bin/python lookup.py asn.txt ip_table.txt userdata/safari_resolved_ipv4.txt
-	./venv/bin/python lookup.py asn.txt ipv6_table.txt userdata/safari_resolved_ipv6.txt
+safari: safari.jsons
+	echo "Output is in $<; use jq to manipulate"
 
-userdata/safari_resolved_ipv4.txt userdata/safari_resolved_ipv6.txt: userdata/safari_domains.txt
-	./venv/bin/python resolve_sites.py $< userdata/safari_resolved_ipv4.txt userdata/safari_resolved_ipv6.txt
+.PHONY: custom
+custom: custom.jsons
+	echo "Output is in $<; use jq to manipulate"
 
-userdata/safari_domains.txt: venv
-	sqlite3 ~/Library/Safari/History.db 'SELECT url FROM history_items' | grep '^https' | sed -e 's,^https://,,' | cut -d/ -f 1 | sort -u | head -n 10 > $@
+%.jsons: asn.txt ip_table.txt ipv6_table.txt userdata/%.resolved_ipv4.txt userdata/%.resolved_ipv6.txt venv
+	rm -f $@
+	./venv/bin/python lookup.py asn.txt ip_table.txt userdata/$(patsubst %.jsons,%,$@).resolved_ipv4.txt >> $@
+	./venv/bin/python lookup.py asn.txt ipv6_table.txt userdata/$(patsubst %.jsons,%,$@).resolved_ipv6.txt >> $@
+
+userdata/%.resolved_ipv4.txt userdata/%.resolved_ipv6.txt: userdata/%_domains.txt resolve_sites.py venv
+	./venv/bin/python resolve_sites.py $< `echo "$@" | cut -d. -f 1`
+
+userdata/chrome_domains.txt: userdata/Chrome_History.sqlite
+	sqlite3 $< 'SELECT url FROM urls' | grep '^https' | sed -e 's,https://,,' | cut -d/ -f 1 | sort -u > $@
+
+userdata/safari_domains.txt:
+	sqlite3 ~/Library/Safari/History.db 'SELECT url FROM history_items' | grep '^https' | sed -e 's,^https://,,' | cut -d/ -f 1 | sort -u > $@
 
 venv: requirements.txt
 	python3 -m virtualenv venv
 	./venv/bin/pip install -r requirements.txt
+
+tables: get_routing_table.py venv
+	./venv/bin/python get_routing_table.py ip
+	./venv/bin/python get_routing_table.py ipv6

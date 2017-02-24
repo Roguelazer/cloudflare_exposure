@@ -30,6 +30,7 @@ def main():
     cloudflare_asns = set(k for k, v in asns.items() if 'CLOUDFLARE' in v)
 
     print('Loading routes into radix tree...', file=sys.stderr)
+    nroutes = 0
     for line in args.route_file:
         line = line.strip()
         if line.endswith(' ') or ' ' not in line:
@@ -38,7 +39,8 @@ def main():
         route_path = tuple(int(i) for i in route_path.split(' '))
         rnode = rtree.add(prefix)
         rnode.data.setdefault("route_paths", set()).add(route_path)
-    print('...done', file=sys.stderr)
+        nroutes += 1
+    print('...done; loaded {0} routes'.format(nroutes), file=sys.stderr)
 
     bad = []
 
