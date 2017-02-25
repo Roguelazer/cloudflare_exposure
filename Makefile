@@ -35,7 +35,7 @@ userdata/1password_domains.txt: extract_1password_domains.sh
 	bash $< | sort -u > "$@"
 
 venv: requirements.txt
-	python3 -m virtualenv venv
+	python -m virtualenv venv
 	./venv/bin/pip install -r requirements.txt
 
 tables: get_routing_table.py venv

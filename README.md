@@ -24,9 +24,9 @@ Usage
 
 ### Chrome
 
-Find the History file for the user profile you're interested in. This typically looks like `~/Library/Application\ Support/Google/Chrome/Profile\ 1/History` (where `1` may be some other number). Copy that into the `userdata` directory under the filename `Chrome_History.sqlite`. Then run `make chrome`.
+Find the History file for the user profile you're interested in. This typically looks like `~/Library/Application\ Support/Google/Chrome/Profile\ 1/History` (where `1` may be some other number). If you've never used Chrome's "Profile" feature, it'll probably be under `~/Library/Application\ Support/Google/Chrome/Default/History` Copy that into the `userdata` directory under the filename `Chrome_History.sqlite`. Then run `make chrome`.
 
-    cp ~/Library/Application\ Support/Google/Chrome/Profile\ 1/History userdata/Chome_History.sqlite
+    cp ~/Library/Application\ Support/Google/Chrome/Profile\ 1/History userdata/Chrome_History.sqlite
     make chrome
 
 ### Safari
@@ -63,6 +63,12 @@ and IPv6 addresses used.
 
 *`lookup.py`* combines those, along with the checked-in map of IANA-assigned ASNs, and determines who's routing
 through CloudFlare.
+
+Requirements
+===========
+ - Python
+ - Virtualenv
+ - A DNS provider who won't freak out at you for a zillion resolutions
 
 License
 =======
